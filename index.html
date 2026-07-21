@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Pengumpulan Tugas SMK Model & KKA</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .active-tab {
+            border-bottom: 3px solid #2563eb;
+            color: #2563eb;
+            font-weight: 600;
+        }
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-blue-900 text-white shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white p-2 rounded-lg text-blue-900 font-bold text-xl">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight">Portal Tugas SMK Model & KKA</h1>
+                        <p class="text-xs text-blue-200">Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi</p>
+                    </div>
+                </div>
+
+                <div id="userInfoHeader" class="hidden flex items-center space-x-4">
+                    <div class="text-right">
+                        <p id="userDisplayName" class="text-sm font-semibold"></p>
+                        <span id="userRoleBadge" class="inline-block bg-blue-700 text-blue-100 text-xs px-2 py-0.5 rounded-full font-medium"></span>
+                    </div>
+                    <button onclick="handleLogout()" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-2 rounded-lg font-medium transition duration-150 flex items-center space-x-1">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Keluar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- LOGIN SECTION -->
+        <div id="loginSection" class="max-w-md mx-auto my-12 bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">Masuk Akun</h2>
+                <p class="text-gray-500 text-sm mt-1">Silakan masuk menggunakan akun SMK atau Admin Kurator</p>
+            </div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Email Domain</label>
+                    <input type="email" id="loginEmail" required placeholder="nama@bmti.com / admin@gmail.com" 
+                           class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Kata Sandi</label>
+                    <input type="password" id="loginPassword" required placeholder="••••••••" 
+                           class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition">
+                </div>
+                <button type="submit" id="btnLogin" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg shadow-md transition duration-200 flex justify-center items-center space-x-2">
+                    <span>Masuk Portal</span>
+                    <i class="fa-solid fa-arrow-right text-sm"></i>
+                </button>
+            </form>
+            <div id="loginError" class="hidden mt-4 bg-red-50 text-red-600 text-sm p-3 rounded-lg border border-red-200 text-center"></div>
+        </div>
+
+        <!-- DASHBOARD SMK SECTION -->
+        <div id="smkDashboard" class="hidden space-y-6">
+            <!-- Welcome Banner -->
+            <div class="bg-gradient-to-r from-blue-800 to-indigo-900 rounded-2xl p-6 text-white shadow-lg flex justify-between items-center">
+                <div>
+                    <span class="bg-blue-700 text-blue-200 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Dashboard SMK</span>
+                    <h2 id="smkWelcomeName" class="text-2xl font-bold mt-2"></h2>
+                    <p class="text-blue-200 text-sm mt-1">Kelola dan unggah berkas tugas TeFa, KKA, serta Laporan Kegiatan Anda.</p>
+                </div>
+                <div class="hidden md:block text-5xl text-blue-300 opacity-50">
+                    <i class="fa-solid fa-file-arrow-up"></i>
+                </div>
+            </div>
+
+            <!-- Upload Section & Tabs -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="border-b border-gray-200 bg-gray-50 px-6 py-4 flex flex-wrap justify-between items-center gap-4">
+                    <h3 class="font-bold text-gray-800 text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-cloud-arrow-up text-blue-600"></i>
+                        <span>Unggah Berkas Tugas Baru</span>
+                    </h3>
+                    <span class="text-xs bg-amber-100 text-amber-800 border border-amber-300 px-3 py-1 rounded-full font-medium">
+                        <i class="fa-solid fa-circle-info mr-1"></i> Terhubung Langsung ke Google Drive API
+                    </span>
+                </div>
+
+                <form id="uploadForm" onsubmit="handleUpload(event)" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Kategori Tugas</label>
+                        <select id="uploadKategori" onchange="updateJenisTugasDropdown()" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                            <option value="">-- Pilih Kategori --</option>
+                            <option value="TeFa">Teaching Factory (TeFa)</option>
+                            <option value="KKA">Koding & kecerdasan Artifisial (KKA)</option>
+                            <option value="Laporan">Laporan Kegiatan</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Jenis / Rincian Tugas</label>
+                        <select id="uploadJenisTugas" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                            <option value="">-- Pilih Kategori Terlebih Dahulu --</option>
+                        </select>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Pilih Dokumen File (PDF / Doc / Excel / ZIP)</label>
+                        <input type="file" id="uploadFileInput" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-300 rounded-lg cursor-pointer">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Catatan Tambahan (Opsional)</label>
+                        <textarea id="uploadCatatan" rows="2" placeholder="Tuliskan keterangan singkat terkait berkas yang diunggah..." class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm"></textarea>
+                    </div>
+
+                    <div class="md:col-span-2 flex justify-end">
+                        <button type="submit" id="btnUpload" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-lg shadow transition flex items-center space-x-2">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>Unggah ke Google Drive</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- History Section -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-gray-800 text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-blue-600"></i>
+                        <span>Riwayat Pengumpulan & Feedback Admin</span>
+                    </h3>
+                    <button onclick="loadDataFromGAS()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1 transition">
+                        <i class="fa-solid fa-arrows-rotate"></i> Refresh Data
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-200 text-gray-600 uppercase text-xs font-bold">
+                                <th class="p-3">Tanggal</th>
+                                <th class="p-3">Kategori</th>
+                                <th class="p-3">Jenis Tugas</th>
+                                <th class="p-3">Nama Berkas</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3">Catatan Admin</th>
+                                <th class="p-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="smkHistoryTableBody" class="divide-y divide-gray-100">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- DASHBOARD ADMIN SECTION -->
+        <div id="adminDashboard" class="hidden space-y-6">
+            <!-- Header Banner -->
+            <div class="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 text-white shadow-lg flex justify-between items-center">
+                <div>
+                    <span class="bg-amber-500 text-slate-950 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">Super Admin / Kurator</span>
+                    <h2 class="text-2xl font-bold mt-2">Panel Evaluasi Laporan SMK</h2>
+                    <p class="text-slate-300 text-sm mt-1">Pantau, unduh, dan evaluasi hasil pengumpulan tugas 33 SMK Model secara terpusat.</p>
+                </div>
+                <div class="hidden md:block text-5xl text-amber-400 opacity-60">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+            </div>
+
+            <!-- Filters Bar -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Filter Kategori</label>
+                    <select id="adminFilterKategori" onchange="renderAdminSubmissions()" class="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 text-sm outline-none">
+                        <option value="ALL">-- Semua Kategori (TeFa, KKA, Laporan) --</option>
+                        <option value="TeFa">Teaching Factory (TeFa)</option>
+                        <option value="KKA">Koding & AI (KKA)</option>
+                        <option value="Laporan">Laporan Kegiatan</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Filter Berdasarkan SMK</label>
+                    <select id="adminFilterSMK" onchange="renderAdminSubmissions()" class="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 text-sm outline-none">
+                        <option value="ALL">-- Semua Sekolah SMK (33 Sekolah) --</option>
+                    </select>
+                </div>
+
+                <div class="flex items-end justify-end h-full pt-4 md:pt-0">
+                    <button onclick="loadDataFromGAS()" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-2 shadow transition">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                        <span>Sinkronkan Data Google Sheets</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Admin Submissions Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-gray-800 text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-blue-600"></i>
+                        <span>Daftar Pengumpulan Tugas Seluruh Sekolah</span>
+                    </h3>
+                    <span id="adminSubmissionCount" class="text-xs bg-blue-100 text-blue-800 font-bold px-3 py-1 rounded-full">0 Berkas</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-200 text-gray-600 uppercase text-xs font-bold">
+                                <th class="p-3">Nama SMK</th>
+                                <th class="p-3">Kategori</th>
+                                <th class="p-3">Jenis Tugas</th>
+                                <th class="p-3">Nama Berkas</th>
+                                <th class="p-3">Tanggal Unggah</th>
+                                <th class="p-3">Status Evaluasi</th>
+                                <th class="p-3">Feedback</th>
+                                <th class="p-3 text-center">Aksi / Penilaian</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminTableBody" class="divide-y divide-gray-100">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-400 py-4 text-center text-xs mt-auto border-t border-gray-700">
+        <p>&copy; 2026 Portal SMK Model & KKA. Terintegrasi Langsung ke Google Drive & Google Sheets API.</p>
+    </footer>
+
+    <!-- EVALUATION MODAL FOR ADMIN -->
+    <div id="evalModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 transform transition-all">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <h3 class="font-bold text-gray-800 text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-blue-600"></i>
+                    <span>Evaluasi & Catatan Kurator</span>
+                </h3>
+                <button onclick="closeEvalModal()" class="text-gray-400 hover:text-gray-600 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="evalForm" onsubmit="handleSaveEvaluation(event)" class="space-y-4">
+                <input type="hidden" id="evalSubmissionId">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Status Verifikasi / Evaluasi</label>
+                    <select id="evalStatus" required class="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 text-sm outline-none">
+                        <option value="Diunggah">Diunggah (Menunggu Penilaian)</option>
+                        <option value="Disetujui">Disetujui (Memenuhi Syarat)</option>
+                        <option value="Perlu Perbaikan">Perlu Perbaikan (Revisi)</option>
+                        <option value="Ditolak">Ditolak</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Feedback / Catatan untuk SMK</label>
+                    <textarea id="evalFeedback" rows="4" required placeholder="Tuliskan ulasan, masukan, atau alasan revisi..." class="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 text-sm outline-none"></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" onclick="closeEvalModal()" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 text-sm font-semibold hover:bg-gray-50">Batal</button>
+                    <button type="submit" id="btnSaveEval" class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow transition">Simpan Evaluasi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex flex-col justify-center items-center text-white">
+        <div class="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mb-3"></div>
+        <p id="loadingText" class="font-semibold text-sm">Menghubungkan ke Google Apps Script API...</p>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // TARGET GOOGLE APPS SCRIPT API URL
+        const API_URL = "https://script.google.com/macros/s/AKfycbyww0Y6sTkF0s1ovrrJhRi2Hg1rWAFDmr5XIsSIQEumXMy9nvv6y5pE4Ry7P-P0Ci_q/exec";
+
+        // Global State
+        let currentUser = null;
+        let accountsList = [];
+        let submissionsList = [];
+
+        // Definition of Tasks per Category
+        const TEFA_FORMS = [
+            "TeFa-01: Perencanaan Pembelajaran TeFa",
+            "TeFa-02: Peta Industri & Mitras Dudi",
+            "TeFa-03: Analisis Produk & Jasa TeFa",
+            "TeFa-04: Jadwal Blok & Struktur Kurikulum",
+            "TeFa-05: Modul Ajar TeFa Integrasi Dudi",
+            "TeFa-06: SOP Pelaksanaan Pengajaran Pabrik",
+            "TeFa-07: Instrumen Asesmen Kinerja Siswa",
+            "TeFa-08: Format Evaluasi Kelayakan Produk",
+            "TeFa-09: Laporan Keuangan & Omset TeFa",
+            "TeFa-10: Dokumen Pemasaran & Marketplace",
+            "TeFa-11: Laporan Evaluasi Dampak TeFa"
+        ];
+
+        const KKA_FORMS = [
+            "KKA-01: Kurikulum & Modul Ajar Koding AI",
+            "KKA-02: Portofolio Proyek Koding AI Siswa"
+        ];
+
+        const REPORT_FORMS = [
+            "Laporan-01: Laporan Pelaksanaan Bulan I",
+            "Laporan-02: Laporan Pelaksanaan Bulan II",
+            "Laporan-03: Laporan Pelaksanaan Bulan III",
+            "Laporan-04: Laporan Kemajuan Tengah Program",
+            "Laporan-05: Laporan Akhir & Best Practice"
+        ];
+
+        // Default SMK Accounts (33 Schools)
+        const DEFAULT_ACCOUNTS = [
+            { email: "harrysuryahadi@gmail.com", password: "zxcvbnm", nama: "Admin Harry Suryahadi", role: "ADMIN" },
+            { email: "yantopermana02@gmail.com", password: "zxcvbnm", nama: "Admin Yanto Permana", role: "ADMIN" }
+        ];
+
+        // Populate 33 SMK accounts
+        for(let i = 1; i <= 33; i++) {
+            const smkNum = i < 10 ? "0" + i : "" + i;
+            DEFAULT_ACCOUNTS.push({
+                email: `smkmodel${smkNum}@bmti.com`,
+                password: "zxcvbnm",
+                nama: `SMK Negeri ${i} Model & KKA`,
+                role: "SMK"
+            });
+        }
+
+        // Initialize App
+        window.onload = function() {
+            checkSavedSession();
+        };
+
+        function showLoading(msg = "Memproses...") {
+            document.getElementById("loadingText").innerText = msg;
+            document.getElementById("loadingOverlay").classList.remove("hidden");
+        }
+
+        function hideLoading() {
+            document.getElementById("loadingOverlay").classList.add("hidden");
+        }
+
+        function checkSavedSession() {
+            const saved = localStorage.getItem("smk_portal_user");
+            if (saved) {
+                currentUser = JSON.parse(saved);
+                updateUIForLoggedInUser();
+                loadDataFromGAS();
+            } else {
+                showLoginSection();
+            }
+        }
+
+        function showLoginSection() {
+            document.getElementById("loginSection").classList.remove("hidden");
+            document.getElementById("smkDashboard").classList.add("hidden");
+            document.getElementById("adminDashboard").classList.add("hidden");
+            document.getElementById("userInfoHeader").classList.add("hidden");
+        }
+
+        function updateUIForLoggedInUser() {
+            document.getElementById("loginSection").classList.add("hidden");
+            document.getElementById("userInfoHeader").classList.remove("hidden");
+            document.getElementById("userDisplayName").innerText = currentUser.nama;
+            document.getElementById("userRoleBadge").innerText = currentUser.role === "ADMIN" ? "Kurator Admin" : "SMK Model";
+
+            if (currentUser.role === "ADMIN") {
+                document.getElementById("adminDashboard").classList.remove("hidden");
+                document.getElementById("smkDashboard").classList.add("hidden");
+                populateAdminSMKDropdown();
+            } else {
+                document.getElementById("smkDashboard").classList.remove("hidden");
+                document.getElementById("adminDashboard").classList.add("hidden");
+                document.getElementById("smkWelcomeName").innerText = currentUser.nama;
+                updateJenisTugasDropdown();
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById("loginEmail").value.trim().toLowerCase();
+            const password = document.getElementById("loginPassword").value.trim();
+            const errDiv = document.getElementById("loginError");
+            errDiv.classList.add("hidden");
+
+            showLoading("Memverifikasi kredensial...");
+
+            // First check local list, or fetch accounts from GAS API
+            let user = DEFAULT_ACCOUNTS.find(acc => acc.email.toLowerCase() === email && acc.password === password);
+
+            if (!user) {
+                try {
+                    const res = await fetch(`${API_URL}?action=getAccounts`);
+                    const result = await res.json();
+                    if (result.success && result.data) {
+                        accountsList = result.data;
+                        user = accountsList.find(acc => acc.email.toLowerCase() === email && acc.password === password);
+                    }
+                } catch(err) {
+                    console.warn("Gagal mengambil akun dari GAS, menggunakan fallback default.");
+                }
+            }
+
+            hideLoading();
+
+            if (user) {
+                currentUser = user;
+                localStorage.setItem("smk_portal_user", JSON.stringify(currentUser));
+                updateUIForLoggedInUser();
+                loadDataFromGAS();
+            } else {
+                errDiv.innerText = "Email atau Kata Sandi salah! Pastikan menggunakan domain @bmti.com atau akun Admin.";
+                errDiv.classList.remove("hidden");
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem("smk_portal_user");
+            currentUser = null;
+            showLoginSection();
+        }
+
+        function updateJenisTugasDropdown() {
+            const kat = document.getElementById("uploadKategori").value;
+            const jenisSelect = document.getElementById("uploadJenisTugas");
+            jenisSelect.innerHTML = "";
+
+            let list = [];
+            if (kat === "TeFa") list = TEFA_FORMS;
+            else if (kat === "KKA") list = KKA_FORMS;
+            else if (kat === "Laporan") list = REPORT_FORMS;
+
+            if (list.length === 0) {
+                jenisSelect.innerHTML = `<option value="">-- Pilih Kategori Terlebih Dahulu --</option>`;
+                return;
+            }
+
+            list.forEach(item => {
+                const opt = document.createElement("option");
+                opt.value = item;
+                opt.innerText = item;
+                jenisSelect.appendChild(opt);
+            });
+        }
+
+        function populateAdminSMKDropdown() {
+            const smkSelect = document.getElementById("adminFilterSMK");
+            smkSelect.innerHTML = `<option value="ALL">-- Semua Sekolah SMK (33 Sekolah) --</option>`;
+
+            DEFAULT_ACCOUNTS.filter(acc => acc.role === "SMK").forEach(acc => {
+                const opt = document.createElement("option");
+                opt.value = acc.email;
+                opt.innerText = `${acc.nama} (${acc.email})`;
+                smkSelect.appendChild(opt);
+            });
+        }
+
+        // ==========================================
+        // GAS API INTEGRATION FUNCTIONS
+        // ==========================================
+
+        async function loadDataFromGAS() {
+            showLoading("Mengambil data laporan terbaru dari Google Sheets...");
+            try {
+                const res = await fetch(`${API_URL}?action=getSubmissions`);
+                const result = await res.json();
+                
+                if (result.success && Array.isArray(result.data)) {
+                    submissionsList = result.data;
+                } else {
+                    submissionsList = [];
+                }
+            } catch (err) {
+                console.error("Gagal mengambil data dari GAS API:", err);
+                // Fallback to localStorage if API call fails
+                const localSaved = localStorage.getItem("smk_portal_submissions");
+                if(localSaved) submissionsList = JSON.parse(localSaved);
+            } finally {
+                hideLoading();
+                if (currentUser.role === "ADMIN") {
+                    renderAdminSubmissions();
+                } else {
+                    renderSMKHistory();
+                }
+            }
+        }
+
+        async function handleUpload(e) {
+            e.preventDefault();
+            const kategori = document.getElementById("uploadKategori").value;
+            const jenisTugas = document.getElementById("uploadJenisTugas").value;
+            const catatan = document.getElementById("uploadCatatan").value;
+            const fileInput = document.getElementById("uploadFileInput");
+
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert("Silakan pilih file dokumen yang akan diunggah!");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            showLoading("Mengunggah berkas ke Google Drive API...");
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = async function() {
+                const payload = {
+                    action: "uploadFile",
+                    emailSmk: currentUser.email,
+                    namaSmk: currentUser.nama,
+                    kategori: kategori,
+                    jenisTugas: jenisTugas,
+                    fileName: file.name,
+                    fileType: file.type,
+                    fileData: reader.result,
+                    catatan: catatan
+                };
+
+                try {
+                    const res = await fetch(API_URL, {
+                        method: "POST",
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await res.json();
+
+                    if (result.success) {
+                        alert("Berkas berhasil disimpan secara permanen di Google Drive!");
+                        document.getElementById("uploadForm").reset();
+                        updateJenisTugasDropdown();
+                        await loadDataFromGAS();
+                    } else {
+                        alert("Gagal mengunggah berkas: " + (result.error || result.message));
+                    }
+                } catch(err) {
+                    console.error("Error uploading file:", err);
+                    alert("Terjadi kesalahan koneksi saat mengunggah ke Google Apps Script.");
+                } finally {
+                    hideLoading();
+                }
+            };
+        }
+
+        function renderSMKHistory() {
+            const tbody = document.getElementById("smkHistoryTableBody");
+            tbody.innerHTML = "";
+
+            const mySubmissions = submissionsList.filter(s => s.emailSmk.toLowerCase() === currentUser.email.toLowerCase());
+
+            if (mySubmissions.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-gray-400">Belum ada berkas tugas yang diunggah.</td></tr>`;
+                return;
+            }
+
+            mySubmissions.forEach(sub => {
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-gray-50";
+
+                let statusColor = "bg-yellow-100 text-yellow-800";
+                if (sub.status === "Disetujui") statusColor = "bg-green-100 text-green-800";
+                else if (sub.status === "Perlu Perbaikan") statusColor = "bg-orange-100 text-orange-800";
+                else if (sub.status === "Ditolak") statusColor = "bg-red-100 text-red-800";
+
+                const formatTanggal = new Date(sub.tanggal).toLocaleDateString("id-ID", {
+                    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+
+                tr.innerHTML = `
+                    <td class="p-3 text-xs text-gray-500">${formatTanggal}</td>
+                    <td class="p-3 font-semibold text-gray-800"><span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded">${sub.kategori}</span></td>
+                    <td class="p-3 text-gray-700 font-medium">${sub.jenisTugas}</td>
+                    <td class="p-3 text-blue-600 font-medium break-all">${sub.fileName}</td>
+                    <td class="p-3"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${statusColor}">${sub.status}</span></td>
+                    <td class="p-3 text-xs text-gray-600">${sub.feedback || "-"}</td>
+                    <td class="p-3 text-center">
+                        <a href="${sub.fileUrl}" target="_blank" class="inline-flex items-center gap-1 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs px-3 py-1.5 rounded-lg font-semibold transition">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            <span>Buka Drive</span>
+                        </a>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderAdminSubmissions() {
+            const tbody = document.getElementById("adminTableBody");
+            tbody.innerHTML = "";
+
+            const katFilter = document.getElementById("adminFilterKategori").value;
+            const smkFilter = document.getElementById("adminFilterSMK").value;
+
+            let filtered = submissionsList.filter(s => {
+                const matchKat = katFilter === "ALL" || s.kategori === katFilter;
+                const matchSmk = smkFilter === "ALL" || s.emailSmk.toLowerCase() === smkFilter.toLowerCase();
+                return matchKat && matchSmk;
+            });
+
+            document.getElementById("adminSubmissionCount").innerText = `${filtered.length} Berkas Ditemukan`;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-gray-400">Tidak ada berkas yang sesuai dengan filter pilihan.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(sub => {
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-gray-50";
+
+                let statusColor = "bg-yellow-100 text-yellow-800";
+                if (sub.status === "Disetujui") statusColor = "bg-green-100 text-green-800";
+                else if (sub.status === "Perlu Perbaikan") statusColor = "bg-orange-100 text-orange-800";
+                else if (sub.status === "Ditolak") statusColor = "bg-red-100 text-red-800";
+
+                const formatTanggal = new Date(sub.tanggal).toLocaleDateString("id-ID", {
+                    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-gray-800">${sub.namaSmk}<br><span class="text-xs font-normal text-gray-400">${sub.emailSmk}</span></td>
+                    <td class="p-3"><span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-semibold text-xs">${sub.kategori}</span></td>
+                    <td class="p-3 text-gray-700 font-medium">${sub.jenisTugas}</td>
+                    <td class="p-3 text-blue-600 font-medium break-all">${sub.fileName}</td>
+                    <td class="p-3 text-xs text-gray-500">${formatTanggal}</td>
+                    <td class="p-3"><span class="px-2 py-1 rounded-full text-xs font-bold ${statusColor}">${sub.status}</span></td>
+                    <td class="p-3 text-xs text-gray-600">${sub.feedback || "-"}</td>
+                    <td class="p-3 text-center space-y-1">
+                        <a href="${sub.fileUrl}" target="_blank" class="inline-flex items-center gap-1 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs px-2.5 py-1 rounded font-semibold transition">
+                            <i class="fa-solid fa-download"></i> Unduh
+                        </a>
+                        <button onclick="openEvalModal('${sub.id}')" class="inline-flex items-center gap-1 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded font-semibold transition">
+                            <i class="fa-solid fa-pen-to-square"></i> Penilaian
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openEvalModal(submissionId) {
+            const sub = submissionsList.find(s => s.id === submissionId);
+            if (!sub) return;
+
+            document.getElementById("evalSubmissionId").value = sub.id;
+            document.getElementById("evalStatus").value = sub.status || "Diunggah";
+            document.getElementById("evalFeedback").value = sub.feedback || "";
+            document.getElementById("evalModal").classList.remove("hidden");
+        }
+
+        function closeEvalModal() {
+            document.getElementById("evalModal").classList.add("hidden");
+        }
+
+        async function handleSaveEvaluation(e) {
+            e.preventDefault();
+            const id = document.getElementById("evalSubmissionId").value;
+            const status = document.getElementById("evalStatus").value;
+            const feedback = document.getElementById("evalFeedback").value;
+
+            showLoading("Menyimpan hasil evaluasi ke Google Sheets...");
+
+            const payload = {
+                action: "updateStatus",
+                id: id,
+                status: status,
+                feedback: feedback
+            };
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+
+                if (result.success) {
+                    alert("Evaluasi dan masukan kurator berhasil diperbarui!");
+                    closeEvalModal();
+                    await loadDataFromGAS();
+                } else {
+                    alert("Gagal memperbarui evaluasi: " + result.message);
+                }
+            } catch(err) {
+                console.error("Error updating evaluation:", err);
+                alert("Terjadi kesalahan saat terhubung ke Google Apps Script API.");
+            } finally {
+                hideLoading();
+            }
+        }
+    </script>
+</body>
+</html>
