@@ -310,7 +310,29 @@
         // TARGET GOOGLE APPS SCRIPT API URL
         const API_URL = "https://script.google.com/macros/s/AKfycbyww0Y6sTkF0s1ovrrJhRi2Hg1rWAFDmr5XIsSIQEumXMy9nvv6y5pE4Ry7P-P0Ci_q/exec";
 
-        // Global State
+        // Variable global untuk menyimpan daftar akun
+        let accountsList = [];
+
+        // Fungsi untuk mengambil data akun dari Google Sheets
+        async function fetchAccountsFromGAS() {  
+            try {
+                const response = await fetch(`${API_URL}?action=getAccounts`);
+                const result = await response.json();
+
+                if (result.success && Array.isArray(result.data)) {
+                    accountsList = result.data;
+                    console.log("Data akun berhasil ditarik:", accountsList);
+                    return accountsList;
+                } else {
+                    console.error("Gagal mengambil data akun:", result.message);
+                    return [];
+                }
+              } catch (error) {
+                console.error("Error koneksi GAS API:", error);
+                return [];
+              }
+        }
+            // Global State
         let currentUser = null;
         let accountsList = [];
         let submissionsList = [];
@@ -411,43 +433,34 @@
         }
 
         async function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById("loginEmail").value.trim().toLowerCase();
-            const password = document.getElementById("loginPassword").value.trim();
-            const errDiv = document.getElementById("loginError");
-            errDiv.classList.add("hidden");
+          e.preventDefault();
+  
+          const emailInput = document.getElementById("loginEmail").value.trim().toLowerCase();
+          const passwordInput = document.getElementById("loginPassword").value.trim();
 
-            showLoading("Memverifikasi kredensial...");
+          // 1. Tarik data akun terbaru dari Google Sheets
+          showLoading("Memverifikasi data akun...");
+          const accounts = await fetchAccountsFromGAS();
+          hideLoading();
 
-            // First check local list, or fetch accounts from GAS API
-            let user = DEFAULT_ACCOUNTS.find(acc => acc.email.toLowerCase() === email && acc.password === password);
+          // 2. Cari akun yang cocok berdasarkan email & password
+          const userMatch = accounts.find(
+            acc => acc.email === emailInput && acc.password === passwordInput
+          );
 
-            if (!user) {
-                try {
-                    const res = await fetch(`${API_URL}?action=getAccounts`);
-                    const result = await res.json();
-                    if (result.success && result.data) {
-                        accountsList = result.data;
-                        user = accountsList.find(acc => acc.email.toLowerCase() === email && acc.password === password);
-                    }
-                } catch(err) {
-                    console.warn("Gagal mengambil akun dari GAS, menggunakan fallback default.");
-                }
-            }
-
-            hideLoading();
-
-            if (user) {
-                currentUser = user;
-                localStorage.setItem("smk_portal_user", JSON.stringify(currentUser));
-                updateUIForLoggedInUser();
-                loadDataFromGAS();
-            } else {
-                errDiv.innerText = "Email atau Kata Sandi salah! Pastikan menggunakan domain @bmti.com atau akun Admin.";
-                errDiv.classList.remove("hidden");
-            }
+          if (userMatch) {
+            alert(`Selamat datang, ${userMatch.nama}! (Role: ${userMatch.role})`);
+    
+            // Simpan sesi login
+            currentUser = userMatch;
+            localStorage.setItem("smk_portal_user", JSON.stringify(currentUser));
+    
+            // Arahkan ke Dashboard
+            updateUIForLoggedInUser();
+          } else {
+            alert("Email atau Kata Sandi salah/tidak ditemukan di database!");
+          }
         }
-
         function handleLogout() {
             localStorage.removeItem("smk_portal_user");
             currentUser = null;
